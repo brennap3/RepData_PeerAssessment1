@@ -8,10 +8,15 @@ output:
 
 ## Loading and preprocessing the data
 
-
+```{echo=TRUE, eval=TRUE, message=TRUE}
+datafitbit<-read.csv("C:\\Users\\Peter\\Desktop\\RepData_PeerAssessment1\\Data\\activity.csv")
+summary(datafitbit)
+##preprocess the data create a second dataset with No NA's
+datafitbitnonas<-datafitbit
+```
 
 ## What is mean total number of steps taken per day?
-
+To do this we will use dplyr we will calculate 
 
 
 ## What is the average daily activity pattern?
