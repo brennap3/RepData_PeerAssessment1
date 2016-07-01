@@ -233,3 +233,29 @@ ggplot(datafitbit.per.interval.activity.by.weekday, aes(x = interval, y = Week_D
                        midpoint = (max(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval) + min(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval)) / 2,
                        name = "Mean steps per interval \n per day of week")
 
+colnames(datafitbit)
+as.character(datafitbit$Week_Day)
+
+datafitbit$Week_day_Week_End <- sapply(datafitbit$Week_Day, function(x) switch(as.character(x),
+                                                             "Sun" = "Weekend",
+                                                             "Sat" = "Weekend",
+                                                             "Weekday"
+))
+
+datafitbit.per.interval.activity.by.weekday.weekend<-datafitbit %>%
+  group_by(interval,Week_day_Week_End) %>%
+  summarise( mean_steps_per_interval = mean(steps,na.rm=TRUE)) %>%
+  arrange(Week_day_Week_End,interval) %>% as.data.frame()
+
+
+ggplot(datafitbit.per.interval.activity.by.weekday.weekend, aes(x = interval, y = Week_day_Week_End, fill = mean_steps_per_interval)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  geom_tile() +
+  ggtitle("Heatmap of mean number of steps \n by time and day of Week type")+
+  xlab("Time of day \n 24 hour clock")+
+  ylab("Day") +
+  scale_fill_gradient2(low = jBuPuPalette[1],
+                       mid = jBuPuPalette[paletteSize/2],
+                       high = jBuPuPalette[paletteSize],
+                       midpoint = (max(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval) + min(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval)) / 2,
+                       name = "Mean steps per interval \n per day of week type")

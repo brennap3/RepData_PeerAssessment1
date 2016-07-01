@@ -550,6 +550,33 @@ ggplot(datafitbit.per.interval.activity.by.weekday, aes(x = interval, y = Week_D
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+Again if we code the days of week as weekend (Saturday, Sunday) and again plot the x -axis (Monday, Tuesday,Wednesday,Thursday,Friday) as time of day, the pattern is somewhat clearer, on weekdays the most activity is happening between 8 am and 9 am while on weekends activity is occuring much later.
+
+```r
+datafitbit$Week_day_Week_End <- sapply(datafitbit$Week_Day, function(x) switch(as.character(x),
+                                                             "Sun" = "Weekend",
+                                                             "Sat" = "Weekend",
+                                                             "Weekday"
+))
+
+datafitbit.per.interval.activity.by.weekday.weekend<-datafitbit %>%
+  group_by(interval,Week_day_Week_End) %>%
+  summarise( mean_steps_per_interval = mean(steps,na.rm=TRUE)) %>%
+  arrange(Week_day_Week_End,interval) %>% as.data.frame()
 
 
+ggplot(datafitbit.per.interval.activity.by.weekday.weekend, aes(x = interval, y = Week_day_Week_End, fill = mean_steps_per_interval)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  geom_tile() +
+  ggtitle("Heatmap of mean number of steps \n by time and day of Week type")+
+  xlab("Time of day \n 24 hour clock")+
+  ylab("Day") +
+  scale_fill_gradient2(low = jBuPuPalette[1],
+                       mid = jBuPuPalette[paletteSize/2],
+                       high = jBuPuPalette[paletteSize],
+                       midpoint = (max(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval) + min(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval)) / 2,
+                       name = "Mean steps per interval \n per day of week type")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
 
