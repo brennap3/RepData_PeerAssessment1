@@ -1,9 +1,13 @@
 library(Kmisc)
+##install.packages("moments")
+library(moments)
 library(tibble)
 library(dtplyr)
 library(dplyr)
 library(ggplot2)
 library(magrittr)
+install.packages("RColorBrewer")
+library(RColorBrewer)
 
 datafitbit<-read.csv("C:\\Users\\Peter\\Desktop\\RepData_PeerAssessment1\\Data\\activity.csv")
 summary(datafitbit)
@@ -181,8 +185,51 @@ plot_grid(abxpw, abxpwithmiss, ncol = 2, nrow = 1)
 ##What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 
+library(moments)
+summary(datastepsbydate)
+?skewness
+
+##calculates as Pearson's Kurtosis coefficient
+
+skewness(datastepsbydate$sum_steps,na.rm=T)
+kurtosis(datastepsbydate$sum_steps,na.rm=T)
+
+skewness(datastepswithimputedmissingdatebydate$sum_steps,na.rm=T) ##no need to do this they (NA's) should be removed
+kurtosis(datastepswithimputedmissingdatebydate$sum_steps,na.rm=T) ##no need to do this they  (NA's)  should be removed
+
+##
+
+##get weekday
+##calculate mean by day of week and interval 
+##create a ggplot heatmap
+
+library(lubridate)
+head(datafitbit)
+datafitbit['Week_Day']<-lubridate::wday(datafitbit$date,label=T)
+
+## we will use the dataset with out the imputed data
+##inspired by https://rpubs.com/daattali/heatmapsGgplotVsLattice
+datafitbit.per.interval.activity.by.weekday<-datafitbit %>%
+  group_by(interval,Week_Day) %>%
+  summarise( mean_steps_per_interval = mean(steps,na.rm=TRUE)) %>%
+  arrange(Week_Day,interval) %>% as.data.frame()
+
+##head(datafitbit.per.interval.activity.by.weekday)
 
 
+jBuPuFun <- colorRampPalette(brewer.pal(n = 9, "BuPu"))
+paletteSize <- 256
+jBuPuPalette <- jBuPuFun(paletteSize)
 
-
+ggplot(datafitbit.per.interval.activity.by.weekday, aes(x = interval, y = Week_Day, fill = mean_steps_per_interval)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  geom_tile() +
+  ggtitle("Heatmap of mean number of steps \n by time and day of Week")+
+  xlab("Time of day \n 24 hour clock")+
+  ylab("Day") +
+  scale_fill_gradient2(low = jBuPuPalette[1],
+                       mid = jBuPuPalette[paletteSize/2],
+                       high = jBuPuPalette[paletteSize],
+                       midpoint = (max(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval) + min(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval)) / 2,
+                       name = "Mean steps per interval \n per day of week")
 

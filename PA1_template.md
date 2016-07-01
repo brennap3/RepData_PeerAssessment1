@@ -282,6 +282,7 @@ qplot(datastepswithimputedmissingdatebydate$sum_steps,
 ![](PA1_template_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 ##Calculate and report the mean and median total number of steps taken per day. 
+
 The mean and median total number of steps  taken per day based on the dataset with the imputed data replacing the missing data are shown below. 
 
 
@@ -314,9 +315,241 @@ print(sd.datasteps.bydate.withimputedmissingdata)
 ## [1] 3974.391
 ```
 
+##Do these values differ from the estimates from the first part of the assignment? 
+
+To answer the question do these values differ we create a number of side by side plotsshowing the distibutions of (a) The dataset without the missing data and (b) with the missing data. We use two types of distribution plots to do this;
+
+1. Histograms.
+2. Boxplots.
+
+
+```r
+##Do these values differ from the estimates from the first part of the assignment? 
+library(cowplot)
+```
+
+```
+## Warning: package 'cowplot' was built under R version 3.3.1
+```
+
+```r
+ap<-qplot(datastepsbydate$sum_steps,
+          geom="histogram",
+          main = "Total number of steps \n taken per day",
+          binwidth=5000,
+          xlab="Sum of steps",
+          ylab="Frequency"
+)
+
+bp<-qplot(datastepswithimputedmissingdatebydate$sum_steps,
+          geom="histogram",
+          main = "Total number of steps \n taken per day \n with missing data imputed",
+          binwidth=5000,
+          xlab="Sum of steps",
+          ylab="Frequency"
+)
+  
+plot_grid(ap, bp, ncol = 2, nrow = 1)
+```
+
+```
+## Warning: Removed 8 rows containing non-finite values (stat_bin).
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+
+The boxplots.
+
+
+```r
+abxpwithmiss<-ggplot(datastepswithimputedmissingdatebydate, aes(factor(0),sum_steps))+geom_boxplot()+
+  ggtitle("Total number of steps \n taken per day \n with missing data imputed")+
+    xlab("")+
+      ylab("Total number of steps taken per day")
+  
+abxpw<-ggplot(datastepsbydate, aes(factor(0),sum_steps))+geom_boxplot()+
+  ggtitle("Total number of steps \n taken per day \n no missing data imputed")+
+  xlab("")+
+  ylab("Total number of steps taken per day")
+
+
+plot_grid(abxpwithmiss,abxpw,  ncol = 2, nrow = 1)
+```
+
+```
+## Warning: Removed 8 rows containing non-finite values (stat_boxplot).
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+
+The summary statistics are shown below:
+
+Summary statistics.
+
+
+```r
+summary(datastepsbydate)
+```
+
+```
+##          date      sum_steps    
+##  2012-10-01: 1   Min.   :   41  
+##  2012-10-02: 1   1st Qu.: 8841  
+##  2012-10-03: 1   Median :10765  
+##  2012-10-04: 1   Mean   :10766  
+##  2012-10-05: 1   3rd Qu.:13294  
+##  2012-10-06: 1   Max.   :21194  
+##  (Other)   :55   NA's   :8
+```
+
+```r
+summary(datastepswithimputedmissingdatebydate)
+```
+
+```
+##          date      sum_steps    
+##  2012-10-01: 1   Min.   :   41  
+##  2012-10-02: 1   1st Qu.: 9819  
+##  2012-10-03: 1   Median :10766  
+##  2012-10-04: 1   Mean   :10766  
+##  2012-10-05: 1   3rd Qu.:12811  
+##  2012-10-06: 1   Max.   :21194  
+##  (Other)   :55
+```
+
+We can see from examining the distributions (with both boxplots and histograms) and looking at the summary statistics that with the imputed missing data, that the IQR has increased, but there does appear to beslightly more left skew in our data and also our distribution with the imputed data appears to be more peaked. We will calculate skew and also the kurtosis the peakedness of the distribution.
+
+
+```r
+summary(datastepsbydate)
+```
+
+```
+##          date      sum_steps    
+##  2012-10-01: 1   Min.   :   41  
+##  2012-10-02: 1   1st Qu.: 8841  
+##  2012-10-03: 1   Median :10765  
+##  2012-10-04: 1   Mean   :10766  
+##  2012-10-05: 1   3rd Qu.:13294  
+##  2012-10-06: 1   Max.   :21194  
+##  (Other)   :55   NA's   :8
+```
+
+```r
+summary(datastepswithimputedmissingdatebydate)
+```
+
+```
+##          date      sum_steps    
+##  2012-10-01: 1   Min.   :   41  
+##  2012-10-02: 1   1st Qu.: 9819  
+##  2012-10-03: 1   Median :10766  
+##  2012-10-04: 1   Mean   :10766  
+##  2012-10-05: 1   3rd Qu.:12811  
+##  2012-10-06: 1   Max.   :21194  
+##  (Other)   :55
+```
+
+The skewness and the kurtosis of the original dataset and the dateaset with the imputed missing data are calculated below: 
+
+With the Missing Data:
+The skewness value caculated is negative  (-0.332957), indicating the distribution is skewed left which we could observe from distribution plots, we can also see from the kurtosis values that distribution is somewhat more peaked (when compared to a normal distribution)
+
+
+```r
+library(moments)
+skewness(datastepsbydate$sum_steps,na.rm=T)
+```
+
+```
+## [1] -0.3103567
+```
+
+```r
+kurtosis(datastepsbydate$sum_steps,na.rm=T)
+```
+
+```
+## [1] 3.730805
+```
+
+When we again measure the skewness and kurtosis of the dataset, we slightly higher negative skew (skewed left), but the Kurtosis value is much higher indicating that the distribution is more peaked. Again on examining the previously calculated distribution plots we can confirm this observation.
 
 
 
+```r
+library(moments)
+skewness(datastepswithimputedmissingdatebydate$sum_steps,na.rm=T) ##no need to do this they (NA's) should be removed
+```
 
+```
+## [1] -0.332957
+```
 
+```r
+kurtosis(datastepswithimputedmissingdatebydate$sum_steps,na.rm=T) ##no need to do this they  (NA's)  should be removed
+```
+
+```
+## [1] 4.293945
+```
+
+With the imputed missing Data:
 ## Are there differences in activity patterns between weekdays and weekends?
+To calculate whether there are differences in behaviour we carry out the following procedure:
+* Calculate the weekday from the date by using lubridate
+* Calculate mean number of step by day of week and interval 
+* Create a ggplot heatmap visualizing the number of teps taken per day.
+
+From this analysis its quite clear that peak activity during oocurs between 8-9 am on weekdays (Monday to Friday) and that on weekends peak activity  occurs much later in the day. The code to execute the analysis is shown below.
+
+```r
+library(lubridate)
+library(RColorBrewer)
+head(datafitbit)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
+```
+
+```r
+datafitbit['Week_Day']<-lubridate::wday(datafitbit$date,label=T)
+
+## we will use the dataset with out the imputed data
+
+datafitbit.per.interval.activity.by.weekday<-datafitbit %>%
+  group_by(interval,Week_Day) %>%
+  summarise( mean_steps_per_interval = mean(steps,na.rm=TRUE)) %>%
+  arrange(Week_Day,interval) %>% as.data.frame()
+
+##head(datafitbit.per.interval.activity.by.weekday)
+
+
+jBuPuFun <- colorRampPalette(brewer.pal(n = 9, "BuPu"))
+paletteSize <- 256
+jBuPuPalette <- jBuPuFun(paletteSize)
+
+ggplot(datafitbit.per.interval.activity.by.weekday, aes(x = interval, y = Week_Day, fill = mean_steps_per_interval)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  geom_tile() +
+  ggtitle("Heatmap of mean number of steps \n by time and day of Week")+
+  xlab("Time of day \n 24 hour clock")+
+  ylab("Day") +
+  scale_fill_gradient2(low = jBuPuPalette[1],
+                       mid = jBuPuPalette[paletteSize/2],
+                       high = jBuPuPalette[paletteSize],
+                       midpoint = (max(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval) + min(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval)) / 2,
+                       name = "Mean steps per interval \n per day of week")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+
+
+
