@@ -1,11 +1,6 @@
-install.packages("Kmisc")
 library(Kmisc)
-install.packages("tibble")
 library(tibble)
-install.packages("dtplyr")
 library(dtplyr)
-install.packages("dplyr")
-
 library(dplyr)
 library(ggplot2)
 library(magrittr)
@@ -27,6 +22,7 @@ datastepsbydate<-datafitbit %>%
 
 avgdatastepsbydate<-mean(datastepsbydate$sum_steps,na.rm=TRUE) 
 mediandatastepsbydate <-median(datastepsbydate$sum_steps,na.rm=TRUE) 
+standard.deviation.datastepsbydate <-sd(datastepsbydate$sum_steps,na.rm=TRUE) 
 ##lets look at the distribution
 hist(datastepsbydate$sum_steps,main="Total number of steps \n taken per day",xlab="Sum of steps per day",ylab="Frequency")
 
@@ -67,6 +63,8 @@ f0<-max(datafitbit.avg.daily.activity$mean_steps)
 ##where does the max average occur
 
 datafitbit.avg.daily.activity[which(datafitbit.avg.daily.activity$mean_steps==eval(f0)),]
+
+
 
 ##
 
