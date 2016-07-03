@@ -6,8 +6,10 @@ library(dtplyr)
 library(dplyr)
 library(ggplot2)
 library(magrittr)
-install.packages("RColorBrewer")
+library(lubridate)
+##install.packages("RColorBrewer")
 library(RColorBrewer)
+library(cowplot)
 
 datafitbit<-read.csv("C:\\Users\\Peter\\Desktop\\RepData_PeerAssessment1\\Data\\activity.csv")
 summary(datafitbit)
@@ -259,3 +261,85 @@ ggplot(datafitbit.per.interval.activity.by.weekday.weekend, aes(x = interval, y 
                        high = jBuPuPalette[paletteSize],
                        midpoint = (max(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval) + min(datafitbit.per.interval.activity.by.weekday$mean_steps_per_interval)) / 2,
                        name = "Mean steps per interval \n per day of week type")
+
+head(datafitbit.per.interval.activity.by.weekday.weekend)
+
+##pair plot
+
+datafitbit['Week_Day']<-lubridate::wday(datafitbit$date,label=T)
+
+## we will use the dataset with out the imputed data
+##inspired by https://rpubs.com/daattali/heatmapsGgplotVsLattice
+
+datafitbit$Week_day_Week_End <- sapply(datafitbit$Week_Day, function(x) switch(as.character(x),
+                                                                               "Sun" = "Weekend",
+                                                                               "Sat" = "Weekend",
+                                                                               "Weekday"
+))
+
+datafitbit.per.interval.activity.by.weekday.weekend<-datafitbit %>%
+  group_by(interval,Week_day_Week_End) %>%
+  summarise( mean_steps_per_interval = mean(steps,na.rm=TRUE)) %>%
+  arrange(Week_day_Week_End,interval) %>% as.data.frame()
+
+
+datafitbit.per.interval.activity.by.weekday <- datafitbit.per.interval.activity.by.weekday.weekend %>% filter(Week_day_Week_End=="Weekday")
+datafitbit.per.interval.activity.by.weekend <- datafitbit.per.interval.activity.by.weekday.weekend %>% filter(Week_day_Week_End=="Weekend")
+
+###
+
+gpwkday<-ggplot(datafitbit.per.interval.activity.by.weekday, aes(x=interval, y=mean_steps_per_interval)) +
+  geom_line(color = "blue")+
+  scale_y_continuous(limits = c(0, 300))+
+  ggtitle("time series plot of the 5-minute interval (x-axis) \n and the average number of steps taken, \n averaged across all Weekdays (y-axis)")+
+  xlab("interval")+
+  ylab("mean number of \n steps across all weekdays")
+
+gpwkend<-ggplot(datafitbit.per.interval.activity.by.weekend, aes(x=interval, y=mean_steps_per_interval)) +
+  geom_line(color = "red")+
+  scale_y_continuous(limits = c(0, 300))+
+  ggtitle("time series plot of the 5-minute interval (x-axis) \n and the average number of steps taken, \n averaged across all Weekend days (y-axis)")+
+  xlab("interval")+
+  ylab("mean number of \n steps across all weekend days \n (Saturday,Sunday)")
+
+plot_grid(gpwkday, gpwkend, ncol = 1, nrow = 2)
+
+?ks.test
+
+ks.test(datastepswithimputedmissingdatebydate$sum_steps, "pnorm", mean(datastepswithimputedmissingdatebydate$sum_steps), sd(datastepswithimputedmissingdatebydate$sum_steps)) ##with imputed missing values
+##null hypothesis: the null hypothesis that the true distribution function of x is equal to, not less than or not greater than the hypothesized distribution function (one-sample case) or the distribution function of y (two-sample case), respectively
+## the test is inconclusive thought we could not reject the null hypothesis at 0.05 level
+##so lets perform a shapiro wilks test on our data
+shapiro.test(datastepswithimputedmissingdatebydate$sum_steps)
+##so from are test we reject the null the null hypothesis that the test data does not comes from a normal distribution
+##and is infact from a normal distribution
+##Finally we plot a qqnorm plot of our data, This is a plot 
+qqnorm(datastepswithimputedmissingdatebydate$sum_steps, main="Quantile Quantile plot of \n number of step with imputed data")
+## again the plot is fairly straight this would indicate normality
+##The q-q plot provides a visual aid in comparing  the sample quantiles 
+##to the corresponding theoretical quantiles.  
+##if the points in a q-q plot deviate from a straight line, 
+##then the assumed distribution is called into question 
+##in our case this would be the normal distribution.
+
+##############
+####
+##
+####
+#############
+head(datastepsbydate)
+ks.test(datastepsbydate$sum_steps, "pnorm", mean(datastepsbydate$sum_steps), sd(datastepsbydate$sum_steps)) ##with imputed missing values
+##null hypothesis: the null hypothesis that the true distribution function of x is equal to, not less than or not greater than the hypothesized distribution function (one-sample case) or the distribution function of y (two-sample case), respectively
+## the test is inconclusive thought we could not reject the null hypothesis at 0.05 level
+##so lets perform a shapiro wilks test on our data
+shapiro.test(datastepsbydate$sum_steps)
+##so from are test we reject the null the null hypothesis that the test data does not comes from a normal distribution
+##and is infact from a normal distribution
+##Finally we plot a qqnorm plot of our data, This is a plot 
+qqnorm(datastepsbydate$sum_steps, main="Quantile Quantile plot of \n number of step with missing data")
+## again the plot is fairly straight this would indicate normality
+##The q-q plot provides a visual aid in comparing  the sample quantiles 
+##to the corresponding theoretical quantiles.  
+##if the points in a q-q plot deviate from a straight line, 
+##then the assumed distribution is called into question 
+##in our case this would be the normal distribution.
