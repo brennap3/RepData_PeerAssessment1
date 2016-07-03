@@ -17,6 +17,9 @@ My gihub rep is here with all necessary code:
 This assignment also uses dplyr 0.5 (to make use of the coalesce function), which has just been released so if running the code please update your dplyr pacakge, the notes on new features are here:
 [Dplyr new features](https://blog.rstudio.org/2016/06/27/dplyr-0-5-0/)
 
+**The document is published to rpubs here, (IMPORTANT click this link to view assignment online) :**
+[Rpubs](http://rpubs.com/brennap3/193651)
+
 **librarys and packages used**
 
 We use the following packages in oour analysis, so lets load them
